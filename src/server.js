@@ -24,15 +24,23 @@ const wss = new WebSocket.Server({ server }); // websocket server
 //   console.log(socket); // 연결된 브라우저
 // };
 
+const onSocketClose = () => {
+  console.log('Disconnected from the Browswer');
+};
+
+const sockets = [];
+
 // socket : 연결된 브라우저
 // on : backend에 연결된 사람의 정보 제공해줌
+// wss : 전체서버용
+// 새로운 브라우저가 서버에 들어오면 코드 실행됨
 wss.on('connection', (socket) => {
+  sockets.push(socket);
   console.log('Connected to Browser ✅');
-  socket.on('close', () => console.log('Disconnected from the Browswer'));
+  socket.on('close', onSocketClose);
   socket.on('message', (message) => {
-    console.log(message.toString('utf-8'));
+    sockets.forEach((aSocket) => aSocket.send(message.toString('utf-8')));
   });
-  socket.send('Hello, there!!');
 });
 
 server.listen(3000, handleListen);
